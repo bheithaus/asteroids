@@ -11,7 +11,7 @@ function Game(length) {
   this.length = length;
   this.lives = 3;
   this.alive = true;
-}
+};
 
 
 Game.prototype.update = function() {
@@ -19,7 +19,7 @@ Game.prototype.update = function() {
   this.updateBullets();
   this.updateAsteroids();
   this.checkCollisions();
-}
+};
 
 Game.prototype.checkCollisions = function() {
   var ship = this.ship;
@@ -51,7 +51,7 @@ Game.prototype.checkCollisions = function() {
   _.each(deleteBullets, function (index) {
     game.bullets.remove(index);
   });
-}
+};
 
 Game.prototype.randomAsteroid = function() {
   var pos, radius, vector;
@@ -61,20 +61,20 @@ Game.prototype.randomAsteroid = function() {
   pos = [Math.random() * this.length, - 100 + Math.random() * 30];
 
   this.asteroids.push(new Asteroid(radius, pos, vector));
-}
+};
 
 Game.prototype.spawnAsteroids = function(n) {
   for (var i = 0; i < n; i++) {
     this.randomAsteroid();
   }
-}
+};
 
 Game.prototype.spawnShip = function() {
-}
+};
 
 Game.prototype.shootBullet = function() {
   this.bullets.push(this.ship.shoot());
-}
+};
 
 Game.prototype.checkBounds = function(object) {
   positionVector = object.position.slice(0);
@@ -91,7 +91,7 @@ Game.prototype.checkBounds = function(object) {
 
   }
   return positionVector;
-}
+};
 
 Game.prototype.updateBullets = function() {
   var bullets = this.bullets;
@@ -104,7 +104,7 @@ Game.prototype.updateBullets = function() {
     }
   }
   this.bullets = newBullets;
-}
+};
 
 Game.prototype.updateShip = function() {
   this.ship.move();
@@ -112,7 +112,7 @@ Game.prototype.updateShip = function() {
   if (this.ship.firing) {
     this.shootBullet();
   }
-}
+};
 
 Game.prototype.updateAsteroids = function() {
   var asteroids = this.asteroids;
@@ -122,8 +122,8 @@ Game.prototype.updateAsteroids = function() {
     asteroids[i].position = this.checkBounds(asteroids[i]);
     // console.log(asteroids[i].position);
   }
-}
+};
 
 Game.prototype.lose = function() {
   // return true if lives < 0
-}
+};

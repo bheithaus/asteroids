@@ -1,14 +1,21 @@
 function Controller(canvas) {
-  this.context = canvas.getContext('2d');
-  this.game = new Game(500);
+  this.ctx = canvas.getContext('2d');
+  this.game = new Game(700);
+  this.bgIMG = new Image();
+  this.bgIMG.src = 'images/stars.jpg';
+  this.asteroidIMG = new Image();
+  this.asteroidIMG.src = 'images/asteroid01.png';
+  this.shipIMG = new Image();
+  this.shipIMG.src = 'images/ship.png';
 }
 
 Controller.prototype.render = function() {
   this.clear();
+  this.drawBackground();
   this.renderBullets();
   this.renderShip();
   this.renderAsteroids();
-}
+};
 
 Controller.prototype.addEventHandler = function() {
   var controller = this;
@@ -18,7 +25,7 @@ Controller.prototype.addEventHandler = function() {
   $('html').keyup(function (event) {
       controller.stopTurn(event.keyCode);
   });
-}
+};
 
 Controller.prototype.startTurn = function(keyCode) {
   switch (keyCode) {
@@ -39,7 +46,7 @@ Controller.prototype.startTurn = function(keyCode) {
       this.game.ship.firing = true;
       break;
   }
-}
+};
 
 Controller.prototype.stopTurn = function(keyCode) {
   switch (keyCode) {
@@ -56,55 +63,65 @@ Controller.prototype.stopTurn = function(keyCode) {
       this.game.ship.firing = false;
       break;
   }
-}
+};
 
 Controller.prototype.drawCircle = function(obj, color) {
-  var ctx = this.context;
+  var ctx = this.ctx;
   ctx.beginPath();
   ctx.arc(obj.position[0],
           obj.position[1],
           obj.radius, 0, Math.PI * 2, false);
   ctx.fillStyle = color;
   ctx.fill();
-}
+};
 
 Controller.prototype.renderShip = function() {
-  var ship = this.game.ship;
-  var ctx = this.context;
-  this.drawCircle(ship, "black");
-  //gun
-  ctx.lineWidth = 5;
-  ctx.beginPath();
-  ctx.moveTo(ship.position[0], ship.position[1]);
-  var directionVector = helpers.convertDirection(ship.direction);
-  var x = directionVector[0]*15 + ship.position[0];
-  var y = directionVector[1]*15 + ship.position[1];
-  ctx.lineTo(x, y);
-  ctx.stroke();
+  var img = this.shipIMG,
+    ctx = this.ctx,
+	ship = this.game.ship;
+ 
+  var r = ship.radius * 3;
+  var x = ship.position[0] - r/2;
+  var y = ship.position[1] - r/2;
+  var rad = ship.direction + Math.PI/2;
+  helpers.drawImageRotated(ctx, img, x, y, r, r, rad);
+};
+
+Controller.prototype.drawAsteroid = function(asteroid) {
+	var ctx = this.ctx;
+	var img = this.asteroidIMG;
+	var x = asteroid.position[0];
+	var y = asteroid.position[1];
+	var r = asteroid.radius;
+	ctx.drawImage(img, x, y, r, r);
 }
 
 Controller.prototype.renderAsteroids = function() {
   var asteroids = this.game.asteroids;
+  var img = new Image();
+  
+  img.src = 'images/asteroid01.png';
   for (var i = 0; i < asteroids.length; i++) {
-    this.drawCircle(asteroids[i], asteroids[i].color);
+	  this.drawAsteroid(asteroids[i]);
+		//this.drawCircle(asteroids[i], asteroids[i].color);
   }
-}
+};
 
 Controller.prototype.renderBullets = function() {
   var bullets = this.game.bullets;
   for (var i = 0; i < bullets.length; i++) {
     this.drawCircle(bullets[i], "red");
   }
-}
+};
 
 Controller.prototype.drawPrompt = function(text, color) {
-  var context = this.context;
-  context.font = "bold 20px zapfino";
-  context.textAlign = "center";
-  context.textBaseline = "middle";
-  context.fillStyle = color;
-  context.fillText(text, 250, 250);
-}
+  var ctx = this.ctx;
+  ctx.font = "bold 20px zapfino";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = color;
+  ctx.fillText(text, this.game.length/2, this.game.length/2);
+};
 
 Controller.prototype.bindClickHandler = function() {
   var controller = this;
@@ -113,16 +130,22 @@ Controller.prototype.bindClickHandler = function() {
     $(this).off('click');
 	controller.animLoop();
   });
-}
+};
 
 Controller.prototype.reset = function() {
-  this.game = new Game(500);
+  this.game = new Game(700);
   this.game.spawnAsteroids(10);
-}
+};
 
 
 Controller.prototype.clear = function() {
-  this.context.clearRect(0, 0, 500, 500);
+  this.ctx.clearRect(0, 0, this.game.length, this.game.length);
+};
+
+Controller.prototype.drawBackground = function() {
+  var ctx = this.ctx;
+  var bg = this.bgIMG;
+  ctx.drawImage(bg, 0, 0, this.game.length, this.game.length );
 }
 
 Controller.prototype.animLoop = function() {
@@ -133,9 +156,9 @@ Controller.prototype.animLoop = function() {
     controller.render();
   } else {
     controller.bindClickHandler();
-    controller.drawPrompt("LOSER", 'black');
+    controller.drawPrompt("Good Game!", 'white');
   }
-}
+};
 
 window.requestAnimFrame = (function(){
   return  window.requestAnimationFrame       ||
@@ -147,7 +170,7 @@ window.requestAnimFrame = (function(){
 })();
 
 $(function() {
-  var canvas = $('<canvas width="500" height="500"></canvas>');
+  var canvas = $('<canvas width="'+ 700 +'" height="'+ 700 +'"></canvas>');
   canvas.appendTo($('body'));
   var controller = new Controller(canvas.get(0));
   controller.game.spawnAsteroids(10);
